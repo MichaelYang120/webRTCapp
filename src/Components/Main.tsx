@@ -54,7 +54,7 @@ export function Main() {
             });
 
         };
-        
+
         remoteVideo.srcObject = remoteStream;
         webcamVideo.srcObject = localStream;
 
@@ -66,49 +66,49 @@ export function Main() {
 
     // 2. Create an offer
     const callButtonClick = async () => {
-               // Reference Firestore collections for signaling
-               const callDoc = firestore.collection('calls').doc();
-               const offerCandidates = callDoc.collection('offerCandidates');
-               const answerCandidates = callDoc.collection('answerCandidates');
-       
-               callInput.value = callDoc.id;
-       
-               // Get candidates for caller, save to db
-               pc.onicecandidate = (event) => {
-                   event.candidate && offerCandidates.add(event.candidate.toJSON());
-               };
-       
-               // Create offer
-               const offerDescription = await pc.createOffer();
-               await pc.setLocalDescription(offerDescription);
-       
-               const offer = {
-                   sdp: offerDescription.sdp,
-                   type: offerDescription.type,
-               };
-       
-               await callDoc.set({ offer });
-       
-               // Listen for remote answer
-               callDoc.onSnapshot((snapshot: any) => {
-                   const data = snapshot.data();
-                   if (!pc.currentRemoteDescription && data?.answer) {
-                       const answerDescription = new RTCSessionDescription(data.answer);
-                       pc.setRemoteDescription(answerDescription);
-                   }
-               });
-       
-               // When answered, add candidate to peer connection
-               answerCandidates.onSnapshot((snapshot: any) => {
-                   snapshot.docChanges().forEach((change: any) => {
-                       if (change.type === 'added') {
-                           const candidate = new RTCIceCandidate(change.doc.data());
-                           pc.addIceCandidate(candidate);
-                       }
-                   });
-               });
-       
-               hangupButton.disabled = false; 
+        // Reference Firestore collections for signaling
+        const callDoc = firestore.collection('calls').doc();
+        const offerCandidates = callDoc.collection('offerCandidates');
+        const answerCandidates = callDoc.collection('answerCandidates');
+
+        callInput.value = callDoc.id;
+
+        // Get candidates for caller, save to db
+        pc.onicecandidate = (event) => {
+            event.candidate && offerCandidates.add(event.candidate.toJSON());
+        };
+
+        // Create offer
+        const offerDescription = await pc.createOffer();
+        await pc.setLocalDescription(offerDescription);
+
+        const offer = {
+            sdp: offerDescription.sdp,
+            type: offerDescription.type,
+        };
+
+        await callDoc.set({ offer });
+
+        // Listen for remote answer
+        callDoc.onSnapshot((snapshot: any) => {
+            const data = snapshot.data();
+            if (!pc.currentRemoteDescription && data?.answer) {
+                const answerDescription = new RTCSessionDescription(data.answer);
+                pc.setRemoteDescription(answerDescription);
+            }
+        });
+
+        // When answered, add candidate to peer connection
+        answerCandidates.onSnapshot((snapshot: any) => {
+            snapshot.docChanges().forEach((change: any) => {
+                if (change.type === 'added') {
+                    const candidate = new RTCIceCandidate(change.doc.data());
+                    pc.addIceCandidate(candidate);
+                }
+            });
+        });
+
+        hangupButton.disabled = false;
     }
 
     // 3. Answer the call with the unique ID
@@ -152,14 +152,14 @@ export function Main() {
         <>
             <h2>1. Start your Webcam</h2>
             <div className="videos">
-            <span>
-                <h3>Local Stream</h3>
-                <video id="webcamVideo" autoPlay playsInline></video>
-            </span>
-            <span>
-                <h3>Remote Stream</h3>
-                <video id="remoteVideo" autoPlay playsInline></video>
-            </span>
+                <span>
+                    <h3>Local Stream</h3>
+                    <video id="webcamVideo" autoPlay playsInline></video>
+                </span>
+                <span>
+                    <h3>Remote Stream</h3>
+                    <video id="remoteVideo" autoPlay playsInline></video>
+                </span>
 
 
             </div>
@@ -170,7 +170,7 @@ export function Main() {
 
             <h2>3. Join a Call</h2>
             <p>Answer the call from a different browser window or device</p>
-            
+
             <input id="callInput" />
             <button id="answerButton" onClick={answerButtonClick} disabled>Answer</button>
 
