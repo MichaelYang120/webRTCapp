@@ -2,10 +2,18 @@
 import '../styles.css';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
+import { useRef } from 'react';
 
 export function Main() {
 	const firebaseConfig = {
 		// config
+		apiKey: "AIzaSyD8bosLKb2Oy7hGmxcWqzvlMcJLB2CEBjg",
+        authDomain: "webrtctest-af167.firebaseapp.com",
+        projectId: "webrtctest-af167",
+        storageBucket: "webrtctest-af167.appspot.com",
+        messagingSenderId: "425182431573",
+        appId: "1:425182431573:web:b7c70599c27b1089a9c7dc",
+        measurementId: "G-8PM2D77HVJ"
 
 	};
 
@@ -25,8 +33,12 @@ export function Main() {
 
 	// Global State
 	const pc = new RTCPeerConnection(servers);
-	let localStream: any = null;
-	let remoteStream: any = null;
+	// let localStream = useRef<HTMLVideoElement>(null);
+	// let remoteStream = useRef<HTMLVideoElement>(null);
+	// let localStream = MutableRefObject<HTMLVideoElement | null> = useRef(null);;
+	// let remoteStream = useRef<HTMLVideoElement>(null);
+	let localStream:any = null;
+	let remoteStream:any = null;
 
 	// HTML elements
 	const webcamButton: any = document.getElementById('webcamButton');
@@ -50,11 +62,14 @@ export function Main() {
 		// Pull tracks from remote stream, add to video stream
 		pc.ontrack = (event) => {
 			event.streams[0].getTracks().forEach((track) => {
-				remoteStream.addTrack(track);
+				remoteStream?.addTrack(track);
 			});
 
 		};
 
+
+		// var remoteStream = remoteVideo.srcObject;
+		// var localStream = webcamButton.srcObject;
 		remoteVideo.srcObject = remoteStream;
 		webcamVideo.srcObject = localStream;
 
@@ -76,6 +91,7 @@ export function Main() {
 		// Get candidates for caller, save to db
 		pc.onicecandidate = (event) => {
 			event.candidate && offerCandidates.add(event.candidate.toJSON());
+
 		};
 
 		// Create offer
@@ -148,6 +164,11 @@ export function Main() {
 		});
 	}
 
+	// 4. Hangup
+	const HangupClick = () => {
+		pc.close();
+	}
+
 	return (
 		<>
 			<h2>1. Start your Webcam</h2>
@@ -176,7 +197,7 @@ export function Main() {
 
 			<h2>4. Hangup</h2>
 
-			<button id="hangupButton" disabled>Hangup</button>
+			<button id="hangupButton" onClick={HangupClick} disabled>Hangup</button>
 		</>
 	)
 } 
